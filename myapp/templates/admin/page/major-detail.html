@@ -1,0 +1,106 @@
+{% extends 'base/admin.html' %}
+{% load static %}
+{% block title %}Chi tiết xét tuyển{% endblock %}
+{% block content %}
+<div class="st-content-body col-md-9">
+                <div class="st-content-wrap">
+                    <div class="st-block-head">
+                        <h2 class="st-block-title ">Thông tin của chuyên ngành</h2>
+                        <div class="st-block-des">
+                            <p>You have full control to manage your own account setting. </p>
+                        </div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="st-block">
+                        <div class="row">
+                            {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-info" role="alert">{{ message }}</div>
+                            {% endfor %}
+                            {% endif %}
+                            <form action="" method="POST">
+                                {% csrf_token %}
+                                <div class="card card-bordered">
+                                <div class="nk-data data-list">
+                                    <div class="data-item" >
+                                        <div class="data-col"><span class="data-label">Tên chuyên ngành</span><span
+                                                class="data-value"><input type="text" name="name" value="{{ major.name }}"></span></div>
+                                        <div class="data-col data-col-end"><span class="data-more"><i
+                                                class="fas fa-arrow-right"></i></span></div>
+                                    </div>
+                                    <div class="data-item" >
+                                        <div class="data-col"><span class="data-label">Mã chuyên ngành</span><span
+                                                class="data-value"><input type="text" name="label" value="{{ major.label }}"></span></div>
+                                        <div class="data-col data-col-end"><span class="data-more"><i
+                                                class="fas fa-arrow-right"></i></span></div>
+                                    </div>
+                                    <div class="data-item" >
+                                        <div class="data-col"><span class="data-label">Chỉ tiêu</span><span
+                                                class="data-value"><input type="number" name="target_amount" max="150" min="0" step="1" value="{{ major.target_amount }}"></span></div>
+                                        <div class="data-col data-col-end"><span class="data-more"><i
+                                                class="fas fa-arrow-right"></i></span></div>
+                                    </div>
+                                    <div class="data-item" >
+                                        <div class="data-col"><span class="data-label">Điểm sàn</span><span
+                                                class="data-value"><input type="number" name="score_base" max="32" min="0" step="0.1" value="{{ major.score_base }}"></span></div>
+                                        <div class="data-col data-col-end"><span class="data-more"><i
+                                                class="fas fa-arrow-right"></i></span></div>
+                                    </div>
+                                    <div class="data-item" >
+                                        <div class="data-col"><span class="data-label">Đợt xét tuyển</span><span
+                                                class="data-value"><input type="date" name="date_expired" value="{{ major.date_expired }}"></span></div>
+                                        <div class="data-col data-col-end"><span class="data-more"><i
+                                                class="fas fa-arrow-right"></i></span></div>
+                                    </div>
+                                    <div class="data-item">
+                                        <button type="submit" class="admin_btn" name="update_major">Update</button>
+                                        <button type="submit" class="admin_btn" name="result_major">Result</button>
+                                    </div>
+                                </div>
+                            </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="st-block-head">
+                        <h2 class="st-block-title" style="padding-top: 20px;">Danh sách xét tuyển chuyên ngành</h2>
+                    </div>
+                    <div class="st-block">
+                        <div class="card card-bordered">
+                            <table class="table table-tranx table-billing">
+                                    <thead>
+                                    <tr class="tb-ts-head">
+                                        <th class="tb-ts-id"><span class="">#</span></th>
+                                        <th class="tb-ts-info"><span class="tb-tnx-desc d-none d-sm-inline-block"><span>Tên thí sinh</span></span><span
+                                                class="tb-tnx-date d-md-inline-block d-none"><span
+                                                class="d-md-none">Date</span><span class="d-none d-md-block"><span>Đăng ký</span><span>Mã ngành</span></span></span>
+                                        </th>
+                                        <th class="tb-tnx-amount">
+                                            <span class="tb-tnx-total d-none d-md-inline-block">Trạng thái</span>
+                                            <span class="tb-tnx-activity d-none d-md-inline-block">Kết quả</span>
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for admission in admissions %}
+                                    <tr class="tb-ts-item">
+                                        <td class="tb-tnx-id"><a href="/dashboard/admission/{{ admission.id }}"><span>{{ admission.id }}</span></a></td>
+                                        <td class=" tb-tnx-amount">
+                                            <div class="tb-tnx-desc"><a href="/dashboard/admission/{{ admission.id }}"><span class="title">{{ admission.user.name }}</span></a>
+                                            </div>
+                                            <div class="tb-tnx-date"><span class="date">{{ admission.created_at }}</span><span class="date">{{ admission.meta_data.Major }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="tb-tnx-info">
+                                            <div class="tb-tnx-total"><span class="amount">{{ admission.status }}</span></div>
+                                            <div class="tb-tnx-status"><span
+                                                    class="badge badge-dot badge-warning">{{ admission.result }}</span></div>
+                                        </td>
+                                    </tr>
+                                    {%  endfor %}
+                                    </tbody>
+                                </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+{% endblock %}

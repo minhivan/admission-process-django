@@ -1,0 +1,216 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %}Quản lý tài khoản{% endblock %}
+
+{% block content %}
+<section class="section-body my-acc">
+    <h3 class="title">Hồ sơ của tôi</h3>
+    <div class="container">
+        <div class="col-md-3 col-sm-12 my-acc-menu">
+            <div class="user-profile">
+                <div class="user-image">
+                    <img src="{% static 'myapp/assets/image/user/undraw_male_avatar_323b.png' %}" alt="">
+                </div>
+                <div class="user-info">
+                    <p class="user-name">{{ user.get_username }}</p>
+                    <span class="logout">
+                        <a href="/logout/">Logout</a>
+                    </span>
+                </div>
+            </div>
+            <ul class="myaccount-menu">
+                <li class="tablinks active" onclick="openTab('tab1')">Cá nhân</li>
+                <li class="tablinks" onclick="openTab('tab2')">Nguyện vọng</li>
+                <li class="tablinks" onclick="openTab('tab3')">Kết quả</li>
+                <li class="tablinks"><a href="/apply">Đăng ký mới</a></li>
+                {% if user.is_staff %}
+                <li class="tablinks"><a href="/dashboard/">Trang quản lý</a></li>
+                {% endif %}
+            </ul>
+        </div>
+        <div class="col-md-9 col-sm-12 my-acc-content student-info">
+            <div class="value-choice my-acc-form active" id="tab1">
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-info" role="alert">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+                <form action="update/{{ request.user.id }}" method="post">
+                    {% csrf_token %}
+                    <fieldset class="student-info-details">
+                        <h4>Thông tin cá nhân</h4>
+                        <div class="col-md-6">
+                            <label for="student_name">Họ và tên</label>
+                            <input id="student_name" name="student_name" type="text" value="{{ applicant.name }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="student_birth">Ngày sinh</label>
+                            <input id="student_birth" name="student_birth" type="date" value="{{ applicant.dob }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="student_sex">Giới tính</label>
+                            <select id="student_sex" name="student_gender">
+                                {% if applicant.gender == 'M' }
+                                <option value="M">Male</option>
+                                {% if  applicant.gender == 'F' %}
+                                <option value="F">Female</option>
+                                {% else %}
+                                <option value="O">Other</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="student_phone">Số điện thoại</label>
+                            <input id="student_phone" name="student_phone" type="text" value="{{ applicant.phone }}" >
+                        </div>
+                        <div class="col-md-6">
+                            <label for="student_identify">CMND/ID</label>
+                            <input id="student_identify" name="student_identify" type="number" value="{{ applicant.identity }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="student_email">Email</label>
+                            <input id="student_email" name="student_email" type="email" value="{{ applicant.email }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="student_address">Địa chỉ liên hệ</label>
+                            <input id="student_address" name="student_address" type="text" value="{{ applicant.address }}">
+                        </div>
+                    </fieldset>
+                    <fieldset class="accout-details">
+                        <h4>Thông tin tài khoản</h4>
+                        <div class="col-md-6">
+                            <label for="password">Mật khẩu</label>
+                            <input id="password" name="password" type="password">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="re-pass">Nhập lại mật khẩu</label>
+                            <input id="re-pass" name="re-pass" type="password">
+                        </div>
+                    </fieldset>
+                    <button type="submit" name="submit">Update</button>
+                </form>
+            </div>
+
+            <div id="tab2" class="value-choice my-acc-wish">
+                <div class="panel-group" id="accordion">
+                    {% if data1 %}
+                    {% for admission, major in data1 %}
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ forloop.counter }}">
+                                    Nguyện vọng {{ forloop.counter }}</a>
+                            </h4>
+                        </div>
+                        <div id="collapse{{ forloop.counter }}" class="panel-collapse collapse in">
+                            <div class="panel-body">
+                                    <h4>Mã ngành: {{ admission.meta_data.Major }} | {{ major }}
+                                    | Khối: {{ admission.meta_data.subject_cluster }}</h4>
+                                <table border="1" style="border-collapse: collapse;margin: auto;">
+                                    <tbody><tr>
+                                        <th style="text-align: center">Môn</th>
+                                        <th style=" text-align: center">Điểm M</th>
+                                    </tr>
+                                    </tbody><tbody>
+                                {% for key, value in admission.details.items %}
+                                <tr> <td style="width: 10%; text-align: center">{{ key }}</td><td style="width: 10%; text-align: center">{{ value }}</td></tr>
+                                {% endfor %}
+                                <tr> <td style="width: 10%; text-align: center">Điểm tổng</td><td style="width: 10%; text-align: center">{{ admission.meta_data.average_score}}</td></tr>
+                                </tbody>
+                                </table>
+                                <div class="status">
+                                    <span>Trạng thái: Sẵn sàng duyệt</span>
+                                    <form action="{% url 'submit_admission' admission.id %}" method="POST">
+                                        {% csrf_token %}
+                                        <input type="submit" value="Nộp phiếu" class="btn-default"/>
+                                    </form>
+                                </div>
+                                <div class="status">
+                                    <form action="{% url 'delete_admission' admission.id %}" method="POST">
+                                        {% csrf_token %}
+                                        <input type="submit" value="Xóa phiếu" class="btn-danger"/>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">Chưa có đăng ký mới nào !</h4>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div id="tab3" class="value-choice  my-acc-result">
+                <div class="panel-group" id="result">
+                    {% if data2 %}
+                    {% for ad, ma in data2 %}
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#result" href="#collapse_t{{ forloop.counter }}">
+                                    Nguyện vọng {{ forloop.counter }}</a>
+                            </h4>
+                        </div>
+                        <div id="collapse_t{{ forloop.counter }}" class="panel-collapse collapse in">
+                            <div class="panel-body">
+                                    <h4>Mã ngành: {{ ad.meta_data.Major }} | {{ ma }}
+                                    | Khối: {{ ad.meta_data.subject_cluster }}</h4>
+                                <table border="1" style="border-collapse: collapse;margin: auto;">
+                                    <tbody><tr>
+                                        <th style="text-align: center">Môn</th>
+                                        <th style=" text-align: center">Điểm M</th>
+                                    </tr>
+                                    </tbody><tbody>
+                                {% for key, value in ad.details.items %}
+                                <tr> <td style="width: 10%; text-align: center">{{ key }}</td><td style="width: 10%; text-align: center">{{ value }}</td></tr>
+                                {% endfor %}
+                                <tr> <td style="width: 10%; text-align: center">Điểm tổng</td><td style="width: 10%; text-align: center; font-weight: bold">{{ ad.meta_data.average_score}}</td></tr>
+                                </tbody>
+                                </table>
+                                 {% if ad.result == "waiting" %}
+                                <div class="status ">
+                                    <span class="alert-warning">Trạng thái: Chờ duyệt</span>
+                                </div>
+                                {% endif %}
+                                {% if ad.result == "passed" %}
+                                <div class="status ">
+                                    <span class="alert-success">Trạng thái: Đã đậu</span>
+                                </div>
+                                {% endif %}
+                                {% if ad.result == "failed" %}
+                                <div class="status ">
+                                    <span class="alert-danger">Trạng thái: Không đủ điều kiện</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+</section>
+<section class="about">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-7 about-content">
+                <h5 class="mb-3">LEARNING PRACTICE AND USEFUL TIPS</h5>
+                <h4>WE PREPARE THE STUDENTS FOR EXAMS AND TESTING</h4>
+                <p class="mt-3 mb-3">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do Lorem ipsum dolor
+                    sit amet, consectetur adipisicing elit, sed do Lorem ipsum dolor sit amet, consectetur adipisicing
+                    elit, sed do Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
